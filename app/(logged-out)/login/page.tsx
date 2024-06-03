@@ -16,10 +16,6 @@ const formSchema = z.object({
     password: z.string()
 })
 
-const handleSubmit = () => {
-    console.log("Verification successful. Form submitted.")
-}
-
 const LoginPage = () => {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -28,6 +24,10 @@ const LoginPage = () => {
             password: ""
         }
     });
+
+    const handleSubmit = () => {
+        console.log("Verification successful. Form submitted.")
+    }
 
     return (
         <>
