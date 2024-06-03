@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PersonStandingIcon } from 'lucide-react'
 import Link from 'next/link'
@@ -13,7 +14,12 @@ import * as z from "zod"
 
 const formSchema = z.object({
     email: z.string().email(),
-    password: z.string()
+    password: z
+        .string()
+        .min(8, "Password must contain at least 8 characters")
+        .refine((password) => {
+            return /^(?=.*[!@#$%^&*])(?=.*[A-Z]).*$/.test(password);
+        }, "Password must contain at least 1 special character and 1 uppercase letter"),
 })
 
 const LoginPage = () => {
@@ -64,7 +70,7 @@ const LoginPage = () => {
                                         Password
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder='Password' type="password" {...field} />
+                                        <PasswordInput placeholder='Password' {...field} />
                                     </FormControl>
                                     <FormDescription>
 

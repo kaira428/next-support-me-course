@@ -5,6 +5,7 @@ import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -30,7 +31,14 @@ const formSchema = z.object({
 
         return date < eighteenYearsAgo;
 
-    }, "You must be at least 18 years and above")
+    }, "You must be at least 18 years and above"),
+    password: z
+        .string()
+        .min(8, "Password must contain at least 8 characters")
+        .refine((password) => {
+            return /^(?=.*[!@#$%^&*])(?=.*[A-Z]).*$/.test(password);
+        }, "Password must contain at least 1 special character and 1 uppercase letter"),
+    passwordConfirm: z.string()
 
 }).superRefine((data, ctx) => {
     if (data.accountType === "company" && !data.companyName) {
@@ -46,6 +54,14 @@ const formSchema = z.object({
             code: z.ZodIssueCode.custom,
             path: ["numberOfEmployees"],
             message: "Number of employees is required / cannot be negative"
+        })
+    }
+
+    if (data.password !== data.passwordConfirm) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["passwordConfirm"],
+            message: "Passwords do not match"
         })
     }
 
@@ -149,7 +165,7 @@ const SigupPage = () => {
                                         <PopoverTrigger asChild >
                                             <FormControl>
                                                 <Button variant="outline" className='normal-case flex justify-between pr-1'>
-                                                   {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                                    {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
                                                     <CalendarIcon />
                                                 </Button>
                                             </FormControl>
@@ -168,6 +184,28 @@ const SigupPage = () => {
                                             />
                                         </PopoverContent>
                                     </Popover>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="password" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>
+                                        Password
+                                    </FormLabel>
+                                    <FormControl>
+                                        <PasswordInput placeholder='........' {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="passwordConfirm" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>
+                                        Confirm Password
+                                    </FormLabel>
+                                    <FormControl>
+                                        <PasswordInput placeholder='........' {...field} />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
