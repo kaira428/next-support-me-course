@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
@@ -12,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
 import { CalendarIcon, PersonStandingIcon } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from "zod"
@@ -21,6 +23,9 @@ const formSchema = z.object({
     accountType: z.enum(["personal", "company"]),
     companyName: z.string().optional(),
     numberOfEmployees: z.coerce.number().optional(),
+    acceptTerms: z.boolean({
+        required_error: "You must accept the Terms & Conditions"
+    }).refine(checked => checked, "You must accept the Terms & Conditions"),
     dob: z.date().refine((date) => {
         const today = new Date();
         const eighteenYearsAgo = new Date(
@@ -28,9 +33,7 @@ const formSchema = z.object({
             today.getMonth(),
             today.getDate()
         )
-
         return date < eighteenYearsAgo;
-
     }, "You must be at least 18 years and above"),
     password: z
         .string()
@@ -72,11 +75,19 @@ const SigupPage = () => {
         resolver: zodResolver(formSchema),
         defaultValues: {
             email: "",
+            password: "",
+            passwordConfirm: "",
+            companyName: "",
+            numberOfEmployees: 1
         }
     });
 
-    const handleSubmit = () => {
-        console.log("Application successful. Form submitted.")
+    const router = useRouter();
+
+    const handleSubmit = (formData: z.infer<typeof formSchema>) => {
+        console.log("Application successful. Form submitted.");
+        console.log(formData);
+        router.push("/dashboard");
     }
 
     const accountType = form.watch("accountType")
@@ -206,6 +217,22 @@ const SigupPage = () => {
                                     <FormControl>
                                         <PasswordInput placeholder='........' {...field} />
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="acceptTerms" render={({ field }) => (
+                                <FormItem>
+                                    <div className='flex gap-2 items-center'>
+                                        <FormControl>
+                                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                                        </FormControl>
+                                        <FormLabel>
+                                            I accept the terms and conditions
+                                        </FormLabel>
+                                    </div>
+                                    <FormDescription>
+                                        By signing up you agree to our <Link href="/terms" className='text-primary hover:underline'>terms & conditions</Link>
+                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )} />
