@@ -13,12 +13,12 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
         const [showPassword, setShowPassword] = React.useState(false);
 
         return (
-            <div className="flex items-center gap-2 select-none">
-                <Input type={showPassword ? "text" : "password"} {...props} ref={ref} className={className} />
-                <span className="cursor-pointer">
+            <div className="relative">
+                <Input type={showPassword ? "text" : "password"} {...props} ref={ref} className={cn(className, "pr-10")} />
+                <span className="cursor-pointer absolute top-[7px] right-2 select-none">
                     {showPassword
                         ? <EyeIcon onClick={() => setShowPassword(false)} />
-                        : <EyeOffIcon onClick={() => setShowPassword(true)} />
+                        : <EyeOffIcon onClick={() => setShowPassword(true)}/>
                     }
                 </span>
             </div>
